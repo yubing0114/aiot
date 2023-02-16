@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yb.aiot.module.device.mapper.EventInfoMapper">
+
+    <select id="pageListQuery" resultType="com.yb.aiot.module.device.entity.vo.EventTableVO">
+        select
+            e.id, e.name, e.device_info_id, et.name as event_type_name, et.level,
+            d.name as device_name,
+            date_format(e.event_time, '%Y-%m-%d %H:%i:%s') as event_time,
+            e.handle_status,
+            date_format(e.handle_time, '%Y-%m-%d %H:%i:%s') as handle_time,
+            e.handle_info, e.event_detail
+        from event_info as e
+            left join device_info d on e.device_info_id = d.id
+            left join event_type et on e.event_type_id = et.id
+        where 1=1
+        <if test="query.name != '' and query.name != null">
+            and e.name like CONCAT('%',#{query.name},'%')
+        </if>
+        <if test="query.deviceName != '' and query.deviceName != null">
+            and d.name like CONCAT('%',#{query.deviceName},'%')
+        </if>
+        <if test="query.handleStatus != null">
+            and e.handle_statue = #{query.handleStatus}
+        </if>
+        <if test="query.startTime != null and query.endTime != null">
+            and (e.event_time between #{query.startTime} and #{query.endTime})
+        </if>
+        order by e.event_time desc
+    </select>
+
+    <select id="countSevenDaysEvent" resultType="com.yb.aiot.module.device.entity.vo.EventInSevenDaysVO">
+        select date_format(a.click_date, '%m-%d') as days, ifnull(b.num,0) as count
+        from (
+        SELECT curdate() as click_date
+        union all
+        SELECT date_sub(curdate(), interval 1 day) as click_date
+        union all
+        SELECT date_sub(curdate(), interval 2 day) as click_date
+        union all
+        SELECT date_sub(curdate(), interval 3 day) as click_date
+        union all
+        SELECT date_sub(curdate(), interval 4 day) as click_date
+        union all
+        SELECT date_sub(curdate(), interval 5 day) as click_date
+        union all
+        SELECT date_sub(curdate(), interval 6 day) as click_date
+        ) a left join (
+        select date(event_time) as date ,count(*) as num from event_info where date_sub(curdate(), interval 7 day) &lt;= date(event_time) group by date) b
+        on a.click_date = b.date
+        group by days
+    </select>
+
+    <select id="countEventByHandleStatus" parameterType="Boolean" resultType="Int">
+        select count(*) from event_info where handle_status = #{handleStatus}
+    </select>
+    <select id="selectByEventTypeIdAndEventTime" resultType="com.yb.aiot.module.device.entity.EventInfo">
+        select * from event_info where event_time &lt;= #{eventTime} and event_type_id in
+        <foreach item='id' collection='eventTypeIdList' index='index' open='(' separator=',' close=')'>
+            #{id}
+        </foreach>
+    </select>
+
+</mapper>

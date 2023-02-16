@@ -1,0 +1,118 @@
+server:
+  port: 80
+spring:
+  application:
+    name: aiot
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER
+  servlet:
+    multipart:
+      max-file-size: 100GB
+      max-request-size: 100GB
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://ip:3306/aiot?serverTimezone=Asia/Shanghai&useSSL=false&useUnicode=true&characterEncoding=utf8
+    username: root
+    password: root
+
+  # redis配置
+  redis:
+    # Redis数据库索引（默认为0）
+    database: 1
+    # Redis服务器地址
+    host: 127.0.0.1
+    # Redis服务器连接端口
+    port: 6379
+    # Redis服务器连接密码（默认为空）
+    # password:
+    # 连接超时时间（毫秒）
+    timeout: 5000ms
+    lettuce:
+      pool:
+        # 连接池最大连接数
+        max-active: 200
+        # 连接池最大阻塞等待时间（使用负值表示没有限制）
+        max-wait: -1ms
+        # 连接池中的最大空闲连接
+        max-idle: 10
+        # 连接池中的最小空闲连接
+        min-idle: 0
+
+mybatis-plus:
+  mapper-locations: classpath*:/com/yslz/aiot/module/*/mapper/xml/*.xml
+  type-aliases-package: com.yb.aiot.module.*.entity.enums
+
+# Sa-Token配置
+sa-token:
+  # token名称 (同时也是cookie名称)
+  token-name: token
+  # token有效期，单位s 默认30天, -1代表永不过期
+  timeout: 3600
+  # token风格
+  token-style: random-64
+  # 是否允许同一账号并发登录 (为true时允许一起登录, 为false时新登录挤掉旧登录)
+  is-concurrent: false
+  # 是否开启自动续签
+  auto-renew: true
+  # 临时有效期，单位s，例如将其配置为 1800 (30分钟)，代表用户如果30分钟无操作，则此Token会立即过期
+  activity-timeout: 1800
+
+# 宇视门禁
+netty:
+  http:
+    connection: 1
+    port: 5196
+
+# zlm 默认服务器配置
+media:
+  # 服务器ip
+  ip: 127.0.0.1
+  # HTTP端口
+  httpPort: 80
+  # ZLM鉴权参数
+  secret: 035c73f7-bb6b-4889-a715-d9eb2d1925cc
+  # 服务器唯一id，用于触发hook时区别是哪台服务器
+  serverId: 110
+
+# 本服务器配置
+aiot:
+  # 事件图片保存天数
+  save-day: 366
+  # 同一设备事件推送间隔事件(单位：分钟)
+  interval-time: 1
+  # 门禁考勤数据推送地址
+  attendance-url:
+  # 宇视门禁事件数据推送URL
+  uniview-event-send-url:
+
+# hikvision(海康平台)
+hik:
+  # artemis协议
+  artemis: https://
+  # artemis网关服务器地址
+  ipPort: 127.0.0.1
+  # 参数提交方式
+  contentType: application/json
+  # appkey
+  appkey:
+  # appsecret
+  appsecret:
+  # 图片访问地址
+  picAddr: http://127.0.0.1
+  api:
+    # 按事件类型订阅事件
+    subscribe: /api/eventService/v1/eventSubscriptionByEventTypes
+    # 订阅停车场出入事件
+    carInOut:
+      # 回调api
+      eventDest: /networkdevices/device/eventRcv
+      # 事件类型
+      eventTypes:
+        in: 771760131
+        out: 771760134
+    # 道闸控制
+    deviceControl: /api/pms/v1/deviceControl
+
+
+

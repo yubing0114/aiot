@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yb.aiot.module.scheduled.mapper.TaskMapper">
+
+    <select id="selectByTaskKey" resultType="com.yb.aiot.module.scheduled.entity.Task">
+        select * from task where task_key = #{taskKey};
+    </select>
+
+    <select id="selectByDefaultTask" resultType="com.yb.aiot.module.scheduled.entity.Task">
+        select * from task where default_task = #{defaultTask};
+    </select>
+
+</mapper>

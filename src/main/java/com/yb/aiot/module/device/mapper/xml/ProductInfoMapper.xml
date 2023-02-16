@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yb.aiot.module.device.mapper.ProductInfoMapper">
+
+    <select id="selectByName" parameterType="String" resultType="com.yb.aiot.module.device.entity.ProductInfo">
+        select * from product_info where name = #{name};
+    </select>
+
+    <select id="selectByTypeId" parameterType="Int" resultType="com.yb.aiot.module.device.entity.ProductInfo">
+        select * from product_info where product_type_id = #{procutTypeId};
+    </select>
+
+    <select id="listProductName" resultType="com.yb.aiot.module.device.entity.vo.ProductListVO">
+        select
+            id,
+            name
+        from product_info;
+    </select>
+
+    <select id="pageList" resultType="com.yb.aiot.module.device.entity.vo.ProductTableVO">
+        select
+            p.id,
+            p.name,
+            pt.name as product_type_name,
+            mi.name as manufacturer_name,
+            p.model_number
+        from product_info as p
+                 left join product_type as pt on p.product_type_id = pt.id
+                 left join manufacturer_info as mi on p.producer_id = mi.id
+    </select>
+
+    <select id="selectDetailVO" parameterType="Int" resultType="com.yb.aiot.module.device.entity.vo.ProductDetailVO">
+        select
+            p.id,
+            p.name,
+            p.product_type_id,
+            pt.name as product_type_name,
+            mi.name as manufacturer_name,
+            mi.phone as manufacturer_phone,
+            mi.address as manufacturer_address,
+            p.model_number,
+            p.port,
+            p.username,
+            p.password,
+            p.stream_url,
+            (select count(*) from device_info as d where d.product_info_id = p.id) as device_count
+        from product_info as p
+            left join product_type as pt on p.product_type_id = pt.id
+            left join manufacturer_info as mi on p.producer_id = mi.id
+        where p.id = #{productId};
+    </select>
+
+    <select id="countProductByType" resultType="com.yb.aiot.module.device.entity.vo.PieCountVO">
+        select
+            ptt.name,
+            (select sum(count1) from
+                (select
+                     pt.id,
+                     pt.parent_type_id,
+                     (select count(*) from product_info as p where p.product_type_id = pt.id) as count1
+                 from product_type as pt) as pc where ptt.id = pc.parent_type_id or ptt.id = pc.id) as value
+        from product_type as ptt where ptt.parent_type_id = 0
+    </select>
+
+</mapper>

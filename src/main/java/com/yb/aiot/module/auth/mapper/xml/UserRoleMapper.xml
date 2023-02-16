@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yb.aiot.module.auth.mapper.UserRoleMapper">
+
+    <select id="selectByUserId" parameterType="Integer" resultType="java.lang.String">
+        select ar.code  from auth_user_role aur left join auth_role ar on aur.role_id = ar.id
+        where aur.user_id = #{userId} and aur.status = 1;
+    </select>
+
+    <select id="selectMapByUserId" parameterType="Integer" resultType="java.util.Map">
+        select aur.id, ar.name, ar.code, aur.status, ar.description, aur.create_time, aur.update_time
+        from auth_user_role aur left join auth_role ar on aur.role_id = ar.id
+        where aur.user_id = #{userId};
+    </select>
+
+    <select id="selectIdByUserId" parameterType="Integer" resultType="java.lang.Integer">
+        select aur.id from auth_user_role aur left join auth_role ar on aur.role_id = ar.id
+        where aur.user_id = #{userId};
+    </select>
+
+</mapper>

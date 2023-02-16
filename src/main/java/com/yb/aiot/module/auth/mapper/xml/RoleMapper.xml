@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yb.aiot.module.auth.mapper.RoleMapper">
+
+    <insert id="add">
+        INSERT INTO `auth_role`
+        VALUES (1, '超级管理员', 'master', '1级-系统最高权限', now(), now()),
+               (2, '管理员', 'admin', '2级-系统管理员权限', now(), now()),
+               (3, '普通用户', 'user', '3级-系统用户权限', now(), now()),
+               (4, 'app用户', 'app', '3级-app API调用权限', now(), now()),
+               (5, 'OpenApi用户', 'open', '3级-open API调用权限', now(), now());
+    </insert>
+
+</mapper>

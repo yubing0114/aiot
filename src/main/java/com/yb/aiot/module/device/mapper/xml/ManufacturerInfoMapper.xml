@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yb.aiot.module.device.mapper.ManufacturerInfoMapper">
+
+    <select id="selectByCode" parameterType="String" resultType="com.yb.aiot.module.device.entity.ManufacturerInfo">
+        select * from manufacturer_info where code = #{code}
+    </select>
+
+    <select id="pageListQuery" resultType="com.yb.aiot.module.device.entity.ManufacturerInfo">
+        select * from manufacturer_info where 1=1
+        <if test="query.name != '' and query.name != null">
+            and name like CONCAT('%',#{query.name},'%')
+        </if>
+        <if test="query.code != '' and query.code != null">
+            and code like CONCAT('%',#{query.code},'%')
+        </if>
+    </select>
+</mapper>

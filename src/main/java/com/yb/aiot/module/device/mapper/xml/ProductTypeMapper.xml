@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yb.aiot.module.device.mapper.ProductTypeMapper">
+
+    <select id="selectByTypename" parameterType="String" resultType="com.yb.aiot.module.device.entity.ProductType">
+        select * from product_type where name = #{name};
+    </select>
+
+    <select id="selectParentTypeByName" parameterType="String" resultType="com.yb.aiot.module.device.entity.ProductType">
+        select * from product_type where name like CONCAT('%',#{query.name},'%') and parent_type_id = 0
+    </select>
+
+    <select id="selectConcatTypeNameById" parameterType="int" resultType="String">
+        select concat_ws('/',(select name from product_type where id = pt.parent_type_id), pt.name) as type_name
+        from product_type as pt
+        where pt.id = #{id}
+    </select>
+
+    <select id="listByParentId" parameterType="Int" resultType="com.yb.aiot.module.device.entity.vo.ProductTypeVO">
+        select pt.id,pt.name,pt.parent_type_id,pt.code,
+               (select count(*) from product_type where parent_type_id = pt.id) as child_count
+        from product_type as pt
+        where parent_type_id = #{parentTypeId};
+    </select>
+
+    <select id="selectByParentId" parameterType="Int" resultType="com.yb.aiot.module.device.entity.ProductType">
+        select *
+        from product_type
+        where parent_type_id = #{parentTypeId};
+    </select>
+
+</mapper>

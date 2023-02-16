@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yb.aiot.module.device.mapper.DeviceInfoMapper">
+
+    <select id="pageListByQuery" resultType="com.yb.aiot.module.device.entity.vo.DeviceTableVO">
+        select
+            d.id, d.name, p.name as product_name, pt.name as product_type_name, p.model_number, ptc.name as protocol_name,
+            d.product_info_id, d.protocol_info_id, d.status, d.is_online, d.alarm_status, d.default_alarm, d.address_id, pl.address_name,
+            d.ip, d.gis_status, d.gis_info
+        from device_info as d left join product_info as p on d.product_info_id = p.id
+                              left join product_type as pt on pt.id = p.product_type_id
+                              left join place as pl on pl.id = d.address_id
+                              left join protocol_info as ptc on d.protocol_info_id = ptc.id
+        where 1=1
+            <if test="query.name != '' and query.name != null">
+                and d.name like CONCAT('%',#{query.name},'%')
+            </if>
+            <if test="query.productName != '' and query.productName != null">
+                and p.name like CONCAT('%',#{query.productName},'%')
+            </if>
+            <if test="query.ip != '' and query.ip != null">
+                and d.ip like CONCAT('%',#{query.ip},'%')
+            </if>
+            <if test="query.productTypeId != 0 and query.productTypeId != null">
+                and (pt.id = #{query.productTypeId} or pt.parent_type_id = #{query.productTypeId})
+            </if>
+            <if test="query.addressId != 0 and query.addressId != null">
+                and (d.address_id = #{query.addressId} or pl.parent_id = #{query.addressId})
+            </if>
+            <if test="query.roomId != 0 and query.roomId != null">
+                and d.room_id = #{query.roomId}
+            </if>
+            <if test="query.status != null">
+                and d.status = #{query.status}
+            </if>
+        order by d.create_time desc
+    </select>
+
+    <select id="selectByIp" parameterType="String" resultType="com.yb.aiot.module.device.entity.DeviceInfo">
+        select * from device_info where ip = #{ip}
+    </select>
+
+    <select id="selectAddressConcatById" parameterType="int" resultType="com.yb.aiot.module.device.entity.vo.DeviceAddressConcatVO">
+        select
+            concat_ws('/',(select address_name from place where id = pl.parent_id), pl.address_name) as address_name,
+            pr.room_name
+        from device_info as d
+            left join place as pl on pl.id = d.address_id
+            left join place_room as pr on pr.id = d.room_id
+        where d.id = #{id}
+    </select>
+
+    <select id="countByStatus" parameterType="Boolean" resultType="Int">
+        select count(*) from device_info where status = #{status}
+    </select>
+
+    <select id="countByIsOnline" parameterType="Boolean" resultType="Int">
+        select count(*) from device_info where is_online = #{isOnline}
+    </select>
+
+    <select id="countByAlarmStatus" parameterType="Boolean" resultType="Int">
+        select count(*) from device_info where alarm_status = #{alarmStatus}
+    </select>
+
+    <select id="selectBaseInfoByIp" resultType="com.yb.aiot.module.sdk.dto.DeviceDto">
+        select d.id as device_id,
+               pt.id as product_type_id,
+               p.id as product_info_id,
+               d.ip,
+               p.username,
+               p.password,
+               p.port,
+               p.stream_url,
+               d.things_model
+        from device_info d
+                 left join product_info p on p.id = d.product_info_id
+                 left join product_type pt on p.product_type_id = pt.id
+        where d.ip = #{deviceIp};
+    </select>
+
+    <select id="selectBaseInfoByDefaultAlarm" resultType="com.yb.aiot.module.sdk.dto.DeviceDto">
+        select d.id as device_id, d.ip, p.username, p.password, p.port, d.things_model, d.default_alarm
+        from device_info d left join product_info p on p.id = d.product_info_id
+        where d.default_alarm = 1;
+    </select>
+
+    <select id="countDevicePieByType" resultType="com.yb.aiot.module.device.entity.vo.PieCountVO">
+        select
+            ptt.name,
+            (select sum(count2) from
+                (select
+                     pt.id,
+                     pt.parent_type_id,
+                     (select sum(count1) from
+                         (select
+                              p.product_type_id,
+                              (select count(*) from device_info as d where p.id = d.product_info_id) as count1
+                          from product_info as p) as pc where pt.id = pc.product_type_id) as count2
+                 from product_type as pt) as pct where pct.parent_type_id = ptt.id or pct.id = ptt.id) as value
+        from product_type as ptt where ptt.parent_type_id = 0
+    </select>
+
+</mapper>
